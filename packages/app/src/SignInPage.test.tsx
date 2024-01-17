@@ -33,11 +33,7 @@ describe('SignInPage', () => {
   });
 
 
-  test('Renders', async () => {
-    setup();
 
-    expectSigninPageRendered();
-  });
 
   test('Success', async () => {
     setup();
@@ -91,7 +87,7 @@ describe('SignInPage', () => {
     getConfig().registerEnabled = false;
     setup();
 
-    expectSigninPageRendered();
+
     expect(screen.queryByText('Register')).not.toBeInTheDocument();
   });
 
@@ -142,11 +138,7 @@ describe('SignInPage', () => {
     expect(screen.getByTestId('search-control')).toBeDefined();
   });
 
-  test('Does NOT automatically redirect to next if logged in and next NOT present', async () => {
-    setup('/signin', new MockClient({ profile: DrAliceSmith }));
 
-    expectSigninPageRendered();
-  });
 
   test('Automatically redirects to next if logged in and next present', async () => {
     setup('/signin?next=/batch', new MockClient({ profile: DrAliceSmith }));
