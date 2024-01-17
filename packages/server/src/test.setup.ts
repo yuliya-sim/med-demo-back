@@ -1,0 +1,220 @@
+import { createReference, getReferenceString, ProfileResource, sleep } from '@medplum/core';
+import {
+  AccessPolicy,
+  AsyncJob,
+  Bundle,
+  ClientApplication,
+  Login,
+  Project,
+  ProjectMembership,
+  Resource,
+  User,
+} from '@medplum/fhirtypes';
+import { randomUUID } from 'crypto';
+import { Express } from 'express';
+import request from 'supertest';
+import { inviteUser } from './admin/invite';
+import { systemRepo } from './fhir/repo';
+import { generateAccessToken } from './oauth/keys';
+import { tryLogin } from './oauth/utils';
+import { AuthenticatedRequestContext, requestContextStore } from './context';
+
+export async function createTestProject(
+  projectOptions?: Partial<Project>,
+  membershipOptions?: Partial<ProjectMembership>
+): Promise<{
+  project: Project;
+  client: ClientApplication;
+  membership: ProjectMembership;
+}> {
+  requestContextStore.enterWith(AuthenticatedRequestContext.system());
+  const project = await systemRepo.createResource<Project>({
+    resourceType: 'Project',
+    name: 'Test Project',
+    owner: {
+      reference: 'User/' + randomUUID(),
+    },
+    strictMode: true,
+    features: ['bots', 'email', 'graphql-introspection', 'cron'],
+    secret: [
+      {
+        name: 'foo',
+        valueString: 'bar',
+      },
+    ],
+    ...projectOptions,
+  });
+
+  const client = await systemRepo.createResource<ClientApplication>({
+    resourceType: 'ClientApplication',
+    secret: randomUUID(),
+    redirectUri: 'https://example.com/',
+    meta: {
+      project: project.id as string,
+    },
+    name: 'Test Client Application',
+  });
+
+  const membership = await systemRepo.createResource<ProjectMembership>({
+    resourceType: 'ProjectMembership',
+    user: createReference(client),
+    profile: createReference(client),
+    project: createReference(project),
+    ...membershipOptions,
+  });
+
+  return {
+    project,
+    client,
+    membership,
+  };
+}
+
+export async function createTestClient(
+  projectOptions?: Partial<Project>,
+  membershipOptions?: Partial<ProjectMembership>
+): Promise<ClientApplication> {
+  return (await createTestProject(projectOptions, membershipOptions)).client;
+}
+
+export async function initTestAuth(
+  projectOptions?: Partial<Project>,
+  membershipOptions?: Partial<ProjectMembership>
+): Promise<string> {
+  const { client, membership } = await createTestProject(projectOptions, membershipOptions);
+  const scope = 'openid';
+
+  const login = await systemRepo.createResource<Login>({
+    resourceType: 'Login',
+    authMethod: 'client',
+    user: createReference(client),
+    client: createReference(client),
+    membership: createReference(membership),
+    authTime: new Date().toISOString(),
+    superAdmin: projectOptions?.superAdmin,
+    scope,
+  });
+
+  return generateAccessToken({
+    login_id: login.id as string,
+    sub: client.id as string,
+    username: client.id as string,
+    client_id: client.id as string,
+    profile: client.resourceType + '/' + client.id,
+    scope,
+  });
+}
+
+export async function addTestUser(
+  project: Project,
+  accessPolicy?: AccessPolicy
+): Promise<{ user: User; profile: ProfileResource; accessToken: string }> {
+  requestContextStore.enterWith(AuthenticatedRequestContext.system());
+  if (accessPolicy) {
+    accessPolicy = await systemRepo.createResource<AccessPolicy>({
+      ...accessPolicy,
+      meta: { project: project.id },
+    });
+  }
+
+  const email = randomUUID() + '@example.com';
+  const password = randomUUID();
+  const { user, profile } = await inviteUser({
+    project,
+    email,
+    password,
+    resourceType: 'Practitioner',
+    firstName: 'Bob',
+    lastName: 'Jones',
+    sendEmail: false,
+    membership: {
+      accessPolicy: accessPolicy && createReference(accessPolicy),
+    },
+  });
+
+  const login = await tryLogin({
+    authMethod: 'password',
+    email,
+    password,
+    scope: 'openid',
+    nonce: 'nonce',
+  });
+
+  const accessToken = await generateAccessToken({
+    login_id: login.id as string,
+    sub: user.id,
+    username: user.id as string,
+    scope: login.scope as string,
+    profile: getReferenceString(profile),
+  });
+
+  return { user, profile, accessToken };
+}
+
+/**
+ * Sets up the pwnedPassword mock to handle "Have I Been Pwned" requests.
+ * @param pwnedPassword - The pwnedPassword mock.
+ * @param numPwns - The mock value to return. Zero is a safe password.
+ */
+export function setupPwnedPasswordMock(pwnedPassword: jest.Mock, numPwns: number): void {
+  pwnedPassword.mockImplementation(async () => numPwns);
+}
+
+/**
+ * Sets up the fetch mock to handle Recaptcha requests.
+ * @param fetch - The fetch mock.
+ * @param success - Whether the mock should return a successful response.
+ */
+export function setupRecaptchaMock(fetch: jest.Mock, success: boolean): void {
+  fetch.mockImplementation(() => ({
+    status: 200,
+    json: () => ({ success }),
+  }));
+}
+
+/**
+ * Returns true if the resource is in an entry in the bundle.
+ * @param bundle - A bundle of resources.
+ * @param resource - The resource to search for.
+ * @returns True if the resource is in the bundle.
+ */
+export function bundleContains(bundle: Bundle, resource: Resource): boolean {
+  return !!bundle.entry?.some((entry) => entry.resource?.id === resource.id);
+}
+
+/**
+ * Waits for a function to evaluate successfully.
+ * Use this to wait for async behaviors without a handle.
+ * @param fn - Function to call.
+ */
+export function waitFor(fn: () => Promise<void>): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      fn()
+        .then(() => {
+          clearTimeout(timer);
+          resolve();
+        })
+        .catch(() => {
+          // ignore
+        });
+    }, 100);
+  });
+}
+
+export async function waitForAsyncJob(contentLocation: string, app: Express, accessToken: string): Promise<AsyncJob> {
+  for (let i = 0; i < 10; i++) {
+    const res = await request(app)
+      .get(new URL(contentLocation).pathname)
+      .set('Authorization', 'Bearer ' + accessToken);
+    if (res.status !== 202) {
+      return res.body as AsyncJob;
+    }
+    await sleep(1000);
+  }
+  throw new Error('Async Job did not complete');
+}
+
+export function withTestContext<T>(fn: () => T): T {
+  return requestContextStore.run(AuthenticatedRequestContext.system(), fn);
+}
