@@ -25,14 +25,14 @@
   "allowedOrigins": "*",
   "introspectionEnabled": true,
   "database": {
-    "host": "localhost",
+    "host": "159.65.121.184",
     "port": 5430,
     "dbname": "medplum",
     "username": "medplum",
     "password": "medplum"
   },
   "redis": {
-    "host": "localhost",
+    "host": "159.65.121.184",
     "port": 6379,
     "password": "medplum"
   },
