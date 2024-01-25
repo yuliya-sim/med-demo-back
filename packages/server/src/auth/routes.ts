@@ -29,7 +29,7 @@ authRouter.use('/mfa', mfaRouter);
 authRouter.post('/method', methodValidator, asyncWrap(methodHandler));
 authRouter.get('/external', asyncWrap(externalCallbackHandler));
 authRouter.get('/me', authenticateRequest, asyncWrap(meHandler));
-authRouter.post('/newuser', newUserValidator, validateRecaptcha(projectRegistrationAllowed), asyncWrap(newUserHandler));
+authRouter.post('/newuser', newUserValidator,/*  validateRecaptcha(projectRegistrationAllowed), */ asyncWrap(newUserHandler));
 authRouter.post('/newproject', newProjectValidator, asyncWrap(newProjectHandler));
 authRouter.post('/newpatient', newPatientValidator, asyncWrap(newPatientHandler));
 authRouter.post('/login', loginValidator, asyncWrap(loginHandler));
