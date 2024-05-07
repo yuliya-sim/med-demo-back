@@ -16,7 +16,9 @@ curl -X POST 'https://api.medplum.com/oauth2/token' \
  * The default value for Medplum's hosted API server is "https://api.medplum.com/".
  * If you are using your own Medplum server, then you can set this value to your server URL.
  */
-const MEDPLUM_BASE_URL = 'https://api.medplum.com/';
+const MEDPLUM_BASE_URL = 'https://shark-app-2-x85eq.ondigitalocean.app'
+// "http://localhost:8103/"
+//'https://shark-app-2-x85eq.ondigitalocean.app';
 
 /**
  * Your Medplum client ID.

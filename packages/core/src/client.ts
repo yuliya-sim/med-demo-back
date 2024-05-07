@@ -81,7 +81,10 @@ import {
 export const MEDPLUM_VERSION = import.meta.env.MEDPLUM_VERSION ?? '';
 export const DEFAULT_ACCEPT = ContentType.FHIR_JSON + ', */*; q=0.1';
 
-const DEFAULT_BASE_URL = 'https://api.medplum.com/';
+const DEFAULT_BASE_URL = 'https://shark-app-2-x85eq.ondigitalocean.app'
+// "http://localhost:8103/"
+//'https://shark-app-2-x85eq.ondigitalocean.app';
+//'https://api.medplum.com/';
 const DEFAULT_RESOURCE_CACHE_SIZE = 1000;
 const DEFAULT_CACHE_TIME = 60000; // 60 seconds
 const BINARY_URL_PREFIX = 'Binary/';
@@ -1075,6 +1078,7 @@ export class MedplumClient extends EventTarget {
     loginRequest: GoogleLoginRequest,
     options?: RequestInit
   ): Promise<LoginAuthenticationResponse> {
+    console.log('loginRequest1=', loginRequest, 'options=', options);
     return this.post(
       'auth/google',
       {

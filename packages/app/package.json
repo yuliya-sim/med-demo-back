@@ -23,7 +23,8 @@
     "clean": "rimraf dist",
     "dev": "vite",
     "source-map-explorer": "source-map-explorer dist/**/*.js --gzip",
-    "test": "jest"
+    "test": "jest",
+    "preview": "vite preview"
   },
   "browserslist": [
     "last 1 Chrome versions"

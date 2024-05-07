@@ -104,7 +104,7 @@ const useStyles = createStyles((theme) => ({
 const carouselItems = [
   {
     img: <IconChecklist />,
-    title: 'Welcome to Foo Medical',
+    title: 'Welcome to Medical App',
     description:
       'Lorem ipsum at porta donec ultricies ut, arcu morbi amet arcu ornare, curabitur pharetra magna tempus',
     url: '/get-care',
