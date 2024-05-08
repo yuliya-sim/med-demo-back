@@ -22,10 +22,10 @@ export function Footer(): JSX.Element {
         <Container p="xl">
           <Stack spacing="xl">
             <SimpleGrid cols={4}>
-              <Anchor href="https://www.medplum.com/docs/tutorials/api-basics/create-fhir-data">Getting started</Anchor>
-              <Anchor href="https://www.medplum.com/docs/tutorials">Playing with demo</Anchor>
-              <Anchor href="https://github.com/medplum/foomedical">Open Source</Anchor>
-              <Anchor href="https://www.medplum.com/docs">Documentation</Anchor>
+              <Anchor href="#">Getting started</Anchor>
+              <Anchor href="#">Playing with demo</Anchor>
+              <Anchor href="#">Open Source</Anchor>
+              <Anchor href="#">Documentation</Anchor>
             </SimpleGrid>
             <Divider />
             <Text color="dimmed" size="sm">
