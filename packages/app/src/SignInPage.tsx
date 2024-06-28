@@ -33,7 +33,7 @@ export function SignInPage(): JSX.Element {
       projectId={searchParams.get('project') || undefined}
     >
       <Logo size={32} />
-      <Title>Sign in to SoftTeco Demo</Title>
+      <Title>Sign in to  Demo</Title>
       {searchParams.get('project') === 'new' && <div>Sign in again to create a new project</div>}
     </SignInForm>
   );

@@ -10,7 +10,7 @@ export function LandingPage(): JSX.Element {
           Welcome!
         </Title>
         <Text>
-          This "SoftTeco Demo" example demonstrates a simple application that fetches Patient data . You can sign in by clicking the link below.
+          This " Demo" example demonstrates a simple application that fetches Patient data . You can sign in by clicking the link below.
         </Text>
         <Button component={Link} to="/signin" size="lg" radius="xl">
           Sign in

@@ -12,7 +12,7 @@ export function Basic(): JSX.Element {
   return (
     <SignInForm onSuccess={() => alert('Signed in!')}>
       <Logo size={32} />
-      <Title>Sign in to SoftTeco Demo</Title>
+      <Title>Sign in to  Demo</Title>
     </SignInForm>
   );
 }
@@ -24,7 +24,7 @@ export function WithLinks(): JSX.Element {
       onForgotPassword={() => alert('Forgot password')}
       onRegister={() => alert('Register')}
     >
-      <Title>Sign in to SoftTeco Demo</Title>
+      <Title>Sign in to  Demo</Title>
     </SignInForm>
   );
 }
@@ -38,7 +38,7 @@ export function WithFooter(): JSX.Element {
         onRegister={() => alert('Register')}
       >
 
-        <Title>Sign in to SoftTeco Demo</Title>
+        <Title>Sign in to  Demo</Title>
       </SignInForm>
     </>
   );
@@ -54,7 +54,7 @@ export function WithGoogle(): JSX.Element {
         googleClientId="xyz"
       >
 
-        <Title>Sign in to SoftTeco Demo</Title>
+        <Title>Sign in to  Demo</Title>
       </SignInForm>
     </>
   );
@@ -70,7 +70,7 @@ export function GoogleOnly(): JSX.Element {
         disableEmailAuth
       >
 
-        <Title>Sign in to SoftTeco Demo</Title>
+        <Title>Sign in to  Demo</Title>
       </SignInForm>
     </>
   );

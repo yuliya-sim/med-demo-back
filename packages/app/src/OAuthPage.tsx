@@ -41,7 +41,7 @@ export function OAuthPage(): JSX.Element | null {
       chooseScopes={scope !== 'openid'}
     >
       <Logo size={32} />
-      <Title>Sign in to SoftTeco Demo</Title>
+      <Title>Sign in to Demo</Title>
     </SignInForm>
   );
 }

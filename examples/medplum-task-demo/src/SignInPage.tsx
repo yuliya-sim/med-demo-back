@@ -9,7 +9,7 @@ export function SignInPage(): JSX.Element {
       onSuccess={() => navigate('/')}
     >
       <Logo size={32} />
-      <h1>Sign in to SoftTeco Demo</h1>
+      <h1>Sign in to  Demo</h1>
     </SignInForm>
   );
 }
